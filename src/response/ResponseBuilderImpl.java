@@ -14,7 +14,7 @@ import fi.iki.elonen.NanoHTTPD.Response;
 class ResponseBuilderImpl implements ResponseBuilder {
    
    private String content;
-   private String etag;
+   private StrongEtag etag;
    private final List<String[]> headers;
    private InputStream is;
    private String mime;
@@ -36,6 +36,12 @@ class ResponseBuilderImpl implements ResponseBuilder {
    @Override
    public ResponseBuilderImpl content(final String content) {
       this.content = content;
+      return this;
+   }
+   
+   @Override
+   public ResponseBuilder etag(final StrongEtag etag) {
+      this.etag = etag;
       return this;
    }
    
@@ -89,15 +95,9 @@ class ResponseBuilderImpl implements ResponseBuilder {
          r.addHeader(pair[0], pair[1]);
       }
       if (etag != null) {
-         r.addHeader("ETag", "\"" + etag + "\""); // The double quotes are required according to the RFC.
+         r.addHeader("ETag", etag.toString());
       }
       return r;
    }
 
-   @Override
-   public ResponseBuilder strongEtag(final String content) {
-      this.etag = content;
-      return this;
-   }
-   
 }

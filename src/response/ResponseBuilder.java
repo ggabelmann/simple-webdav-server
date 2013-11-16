@@ -13,12 +13,10 @@ public interface ResponseBuilder {
    public ResponseBuilder content(final String content);
    
    /**
-    * Do not wrap the value in quotes.
-    * 
     * @param content Can be null.
     * @return This ResponseBuilder.
     */
-   public ResponseBuilder strongEtag(final String content);
+   public ResponseBuilder etag(final StrongEtag etag);
    
    /**
     * If this method is called without a null parameter then the response will use it instead of any value set with content().

@@ -24,8 +24,8 @@ public class ResponseBuilderFactory implements ResponseBuilder {
    }
 
    @Override
-   public ResponseBuilder strongEtag(final String content) {
-      return create().strongEtag(content);
+   public ResponseBuilder etag(final StrongEtag etag) {
+      return create().etag(etag);
    }
    
    @Override

@@ -21,6 +21,7 @@ import fi.iki.elonen.NanoHTTPD;
 import handler.DigestAuthHandler;
 import handler.Handler;
 import handler.HandlerBuilderFactory;
+import response.StrongEtag;
 import response.ResponseBuilderFactory;
 
 /**
@@ -237,14 +238,14 @@ public class GalleriesServer extends NanoHTTPD {
       public Response handle(String uri, Method method, Map<String, String> header, Map<String, String> parms) {
          if (method.equals(Method.GET)) {
             final Image image = getImage(uri);
-            final String etag = "" + image.url.hashCode();
-            if (new String("\"" + etag + "\"").equals(header.get("etag"))) { // Yes, must create an ETag Class.
+            final StrongEtag etag = new StrongEtag(String.valueOf(image.url.hashCode()));
+            if (etag.toString().equals(header.get("if-none-match"))) {
                return rbf.status(Response.Status.NOT_MODIFIED).build();
             }
             else {
                final InputStream is = image.getInputStream(); // See if we can get the data...
                if (image.success) {
-                  return rbf.strongEtag(etag).mime(Mime.TYPES.get("jpg")).is(is).build();
+                  return rbf.etag(etag).mime(Mime.TYPES.get("jpg")).is(is).build();
                }
             }
          }
