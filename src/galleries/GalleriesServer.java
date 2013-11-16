@@ -119,7 +119,10 @@ public class GalleriesServer extends NanoHTTPD {
                      hbf.uri("/galleries/?").handler(new GalleriesHandler()),
                      hbf.uri("/galleries/gallery\\d+/?").handler(new GalleryHandler())
                ),
-               hbf.uri("/galleries/gallery\\d+/\\d+.jpg").handler(new PhotoHandler())
+               hbf.uri("/galleries/gallery\\d+/\\d+.jpg").handler(
+                     hbf.method(Method.GET).handler(new GetPhotoHandler()),
+                     hbf.method(Method.PROPFIND).handler(new PropfindPhotoHandler())
+               )
             ),
             hbf.response(rbf.status(Response.Status.FORBIDDEN).build())
       );
@@ -208,11 +211,11 @@ public class GalleriesServer extends NanoHTTPD {
       
    }
    
-   private class PhotoHandler implements Handler {
+   private abstract class AbstractPhotoHandler implements Handler {
       
       private final Pattern pattern;
       
-      private PhotoHandler() {
+      private AbstractPhotoHandler() {
          pattern = Pattern.compile(".+gallery(\\d+)/(\\d+).jpg");
       }
       
@@ -222,39 +225,45 @@ public class GalleriesServer extends NanoHTTPD {
          return Integer.parseInt(m.group(1));
       }
       
-      private int getImageNum(final String uri) {
+      protected int getImageNum(final String uri) {
          final Matcher m = pattern.matcher(uri);
          m.matches();
          return Integer.parseInt(m.group(2));
       }
       
-      private Image getImage(final String uri) {
+      protected Image getImage(final String uri) {
          final int galleryNum = getGalleryNum(uri);
          final int imageNum = getImageNum(uri);
          return galleries.get(galleryNum).getImage(imageNum);
       }
       
+   }
+   
+   private class GetPhotoHandler extends AbstractPhotoHandler {
+      
       @Override
       public Response handle(String uri, Method method, Map<String, String> header, Map<String, String> parms) {
-         if (method.equals(Method.GET)) {
-            final Image image = getImage(uri);
-            final StrongEtag etag = new StrongEtag(String.valueOf(image.url.hashCode()));
-            if (etag.toString().equals(header.get("if-none-match"))) {
-               return rbf.status(Response.Status.NOT_MODIFIED).build();
-            }
-            else {
-               final InputStream is = image.getInputStream(); // See if we can get the data...
-               if (image.success) {
-                  return rbf.etag(etag).mime(Mime.TYPES.get("jpg")).is(is).build();
-               }
+         final Image image = getImage(uri);
+         final StrongEtag etag = new StrongEtag(String.valueOf(image.url.hashCode()));
+         if (etag.toString().equals(header.get("if-none-match"))) {
+            return rbf.status(Response.Status.NOT_MODIFIED).build();
+         }
+         else {
+            final InputStream is = image.getInputStream(); // See if we can get the data...
+            if (image.success) {
+               return rbf.etag(etag).mime(Mime.TYPES.get("jpg")).is(is).build();
             }
          }
-         else if (method.equals(Method.PROPFIND)) {
-            final Image image = getImage(uri);
-            return rbf.fr(new ImageAdapter(image, getImageNum(uri) + ".jpg", uri)).build();
-         }
-         
          return null;
+      }
+   }
+   
+   private class PropfindPhotoHandler extends AbstractPhotoHandler {
+      
+      @Override
+      public Response handle(String uri, Method method, Map<String, String> header, Map<String, String> parms) {
+         final Image image = getImage(uri);
+         return rbf.fr(new ImageAdapter(image, getImageNum(uri) + ".jpg", uri)).build();
       }
    }
    
