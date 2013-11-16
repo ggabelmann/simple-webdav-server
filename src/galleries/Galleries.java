@@ -1,4 +1,4 @@
-package fi.iki.elonen.galleries;
+package galleries;
 
 import java.util.ArrayList;
 import java.util.List;

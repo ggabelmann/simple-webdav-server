@@ -1,15 +1,15 @@
-package fi.iki.elonen.response;
+package response;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import fi.iki.elonen.Mime;
 import fi.iki.elonen.NanoHTTPD.Response;
-import fi.iki.elonen.resource.CollectionResource;
-import fi.iki.elonen.resource.CollectionResourceRenderer;
-import fi.iki.elonen.resource.FileResource;
-import fi.iki.elonen.resource.FileResourceRenderer;
+import resource.CollectionResource;
+import resource.CollectionResourceRenderer;
+import resource.FileResource;
+import resource.FileResourceRenderer;
+import web.Mime;
 
 class ResponseBuilderImpl implements ResponseBuilder {
    

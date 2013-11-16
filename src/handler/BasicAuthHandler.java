@@ -1,10 +1,10 @@
-package fi.iki.elonen.handler;
+package handler;
 
 import java.util.Map;
 
+import response.ResponseBuilderFactory;
 import fi.iki.elonen.NanoHTTPD.Method;
 import fi.iki.elonen.NanoHTTPD.Response;
-import fi.iki.elonen.response.ResponseBuilderFactory;
 
 /**
  * A Handler for Basic authentication.

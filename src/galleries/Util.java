@@ -1,4 +1,4 @@
-package fi.iki.elonen.galleries;
+package galleries;
 
 import java.net.URI;
 

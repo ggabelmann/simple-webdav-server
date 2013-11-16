@@ -1,4 +1,4 @@
-package fi.iki.elonen.galleries;
+package galleries;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -6,8 +6,8 @@ import java.util.List;
 
 import com.google.common.collect.Iterators;
 
-import fi.iki.elonen.resource.CollectionResource;
-import fi.iki.elonen.resource.FileResource;
+import resource.CollectionResource;
+import resource.FileResource;
 
 class GalleriesAdapter implements CollectionResource {
    

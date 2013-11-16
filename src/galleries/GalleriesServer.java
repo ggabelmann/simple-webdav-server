@@ -1,4 +1,4 @@
-package fi.iki.elonen.galleries;
+package galleries;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -16,12 +16,12 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import fi.iki.elonen.Mime;
+import web.Mime;
 import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.handler.DigestAuthHandler;
-import fi.iki.elonen.handler.Handler;
-import fi.iki.elonen.handler.HandlerBuilderFactory;
-import fi.iki.elonen.response.ResponseBuilderFactory;
+import handler.DigestAuthHandler;
+import handler.Handler;
+import handler.HandlerBuilderFactory;
+import response.ResponseBuilderFactory;
 
 /**
  * ?

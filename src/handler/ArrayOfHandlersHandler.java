@@ -1,4 +1,4 @@
-package fi.iki.elonen.handler;
+package handler;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package fi.iki.elonen.resource;
+package resource;
 
 
 public interface ResourceRenderer {

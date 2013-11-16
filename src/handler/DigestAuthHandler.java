@@ -1,12 +1,12 @@
-package fi.iki.elonen.handler;
+package handler;
 
 import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import response.ResponseBuilderFactory;
 import fi.iki.elonen.NanoHTTPD.Method;
 import fi.iki.elonen.NanoHTTPD.Response;
-import fi.iki.elonen.response.ResponseBuilderFactory;
 
 /**
  * A Handler for Digest authentication.

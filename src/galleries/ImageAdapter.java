@@ -1,7 +1,7 @@
-package fi.iki.elonen.galleries;
+package galleries;
 
-import fi.iki.elonen.Mime;
-import fi.iki.elonen.resource.FileResource;
+import web.Mime;
+import resource.FileResource;
 
 class ImageAdapter implements FileResource {
    

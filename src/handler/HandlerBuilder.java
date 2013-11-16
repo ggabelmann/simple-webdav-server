@@ -1,4 +1,4 @@
-package fi.iki.elonen.handler;
+package handler;
 
 import fi.iki.elonen.NanoHTTPD.Method;
 import fi.iki.elonen.NanoHTTPD.Response;

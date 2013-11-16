@@ -1,12 +1,11 @@
-package fi.iki.elonen.response;
+package response;
 
 import java.io.InputStream;
 
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
-import fi.iki.elonen.resource.CollectionResource;
-import fi.iki.elonen.resource.FileResource;
-
+import resource.CollectionResource;
+import resource.FileResource;
 
 public class ResponseBuilderFactory implements ResponseBuilder {
    
