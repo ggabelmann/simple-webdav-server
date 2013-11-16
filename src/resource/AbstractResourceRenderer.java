@@ -7,9 +7,6 @@ import java.util.TimeZone;
 
 abstract class AbstractResourceRenderer implements ResourceRenderer {
    
-   protected final String host;
-   protected final int port;
-   
    protected static final DateFormat dateFormatter;
    protected static final String xml_head;
    protected static final String xml_foot;
@@ -22,9 +19,7 @@ abstract class AbstractResourceRenderer implements ResourceRenderer {
       xml_foot = "</D:multistatus>";
    }
    
-   AbstractResourceRenderer(final String host, final int port) {
-      this.host = host;
-      this.port = port;
+   AbstractResourceRenderer() {
    }
    
 }

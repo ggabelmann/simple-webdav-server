@@ -4,16 +4,17 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import fi.iki.elonen.NanoHTTPD.Response;
 import resource.CollectionResource;
 import resource.CollectionResourceRenderer;
 import resource.FileResource;
 import resource.FileResourceRenderer;
 import web.Mime;
+import fi.iki.elonen.NanoHTTPD.Response;
 
 class ResponseBuilderImpl implements ResponseBuilder {
    
    private String content;
+   private String etag;
    private final List<String[]> headers;
    private InputStream is;
    private String mime;
@@ -45,18 +46,13 @@ class ResponseBuilderImpl implements ResponseBuilder {
    }
    
    @Override
-   public ResponseBuilderImpl cr(final CollectionResource cr, final String host, final int port, final String depth) {
-      return xml(new CollectionResourceRenderer(cr, host, port).getResponseXml(depth));
+   public ResponseBuilderImpl cr(final CollectionResource cr, final String depth) {
+      return xml(new CollectionResourceRenderer(cr).getResponseXml(depth));
    }
    
    @Override
-   public ResponseBuilderImpl fr(final FileResource fr, final String host, final int port) {
-      return xml(new FileResourceRenderer(fr, host, port).getResponseXml("0"));
-   }
-   
-   @Override
-   public ResponseBuilderImpl xml(final String content) {
-      return content(content).mime(Mime.TYPES.get("xml")).status(Response.Status.MULTI_STATUS);
+   public ResponseBuilderImpl fr(final FileResource fr) {
+      return xml(new FileResourceRenderer(fr).getResponseXml("0"));
    }
    
    @Override
@@ -69,6 +65,11 @@ class ResponseBuilderImpl implements ResponseBuilder {
    public ResponseBuilderImpl status(final Response.Status s) {
       this.status = s;
       return this;
+   }
+   
+   @Override
+   public ResponseBuilderImpl xml(final String content) {
+      return content(content).mime(Mime.TYPES.get("xml")).status(Response.Status.MULTI_STATUS);
    }
    
    @Override
@@ -87,7 +88,16 @@ class ResponseBuilderImpl implements ResponseBuilder {
       for (final String[] pair : headers) {
          r.addHeader(pair[0], pair[1]);
       }
+      if (etag != null) {
+         r.addHeader("ETag", "\"" + etag + "\""); // The double quotes are required according to the RFC.
+      }
       return r;
+   }
+
+   @Override
+   public ResponseBuilder strongEtag(final String content) {
+      this.etag = content;
+      return this;
    }
    
 }

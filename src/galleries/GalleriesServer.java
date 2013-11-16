@@ -190,7 +190,7 @@ public class GalleriesServer extends NanoHTTPD {
       
       @Override
       public Response handle(String uri, Method method, Map<String, String> header, Map<String, String> parms) {
-         return rbf.cr(new GalleriesAdapter(galleries, uri), hostname, myPort, header.get("depth")).build();
+         return rbf.cr(new GalleriesAdapter(galleries, uri), header.get("depth")).build();
       }
       
    }
@@ -202,7 +202,7 @@ public class GalleriesServer extends NanoHTTPD {
          final Matcher m = Pattern.compile(".+gallery(\\d+).*").matcher(uri);
          m.matches();
          final int galleryNum = Integer.parseInt(m.group(1));
-         return rbf.cr(new GalleryAdapter(galleries.get(galleryNum), uri, true), hostname, myPort, header.get("depth")).build();
+         return rbf.cr(new GalleryAdapter(galleries.get(galleryNum), uri, true), header.get("depth")).build();
       }
       
    }
@@ -237,14 +237,20 @@ public class GalleriesServer extends NanoHTTPD {
       public Response handle(String uri, Method method, Map<String, String> header, Map<String, String> parms) {
          if (method.equals(Method.GET)) {
             final Image image = getImage(uri);
-            final InputStream is = image.getInputStream(); // See if we can get the data...
-            if (image.success) {
-               return rbf.mime(Mime.TYPES.get("jpg")).is(is).build();
+            final String etag = "" + image.url.hashCode();
+            if (new String("\"" + etag + "\"").equals(header.get("etag"))) { // Yes, must create an ETag Class.
+               return rbf.status(Response.Status.NOT_MODIFIED).build();
+            }
+            else {
+               final InputStream is = image.getInputStream(); // See if we can get the data...
+               if (image.success) {
+                  return rbf.strongEtag(etag).mime(Mime.TYPES.get("jpg")).is(is).build();
+               }
             }
          }
          else if (method.equals(Method.PROPFIND)) {
             final Image image = getImage(uri);
-            return rbf.fr(new ImageAdapter(image, getImageNum(uri) + ".jpg", uri), hostname, myPort).build();
+            return rbf.fr(new ImageAdapter(image, getImageNum(uri) + ".jpg", uri)).build();
          }
          
          return null;

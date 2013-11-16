@@ -14,42 +14,47 @@ public class ResponseBuilderFactory implements ResponseBuilder {
    }
 
    @Override
-   public ResponseBuilder addHeader(String name, String value) {
+   public ResponseBuilder addHeader(final String name, String value) {
       return create().addHeader(name, value);
    }
 
    @Override
-   public ResponseBuilder content(String content) {
+   public ResponseBuilder content(final String content) {
       return create().content(content);
    }
 
    @Override
-   public ResponseBuilder is(InputStream is) {
+   public ResponseBuilder strongEtag(final String content) {
+      return create().strongEtag(content);
+   }
+   
+   @Override
+   public ResponseBuilder is(final InputStream is) {
       return create().is(is);
    }
 
    @Override
-   public ResponseBuilder cr(CollectionResource cr, String host, int port, String depth) {
-      return create().cr(cr, host, port, depth);
+   public ResponseBuilder cr(final CollectionResource cr, final String depth) {
+      return create().cr(cr, depth);
    }
 
    @Override
-   public ResponseBuilder fr(FileResource fr, String host, int port) {
-      return create().fr(fr, host, port);
+   public ResponseBuilder fr(final FileResource fr) {
+      return create().fr(fr);
    }
 
    @Override
-   public ResponseBuilder xml(String content) {
+   public ResponseBuilder xml(final String content) {
       return create().xml(content);
    }
 
    @Override
-   public ResponseBuilder mime(String mime) {
+   public ResponseBuilder mime(final String mime) {
       return create().mime(mime);
    }
 
    @Override
-   public ResponseBuilder status(Status s) {
+   public ResponseBuilder status(final Status s) {
       return create().status(s);
    }
 
@@ -57,5 +62,5 @@ public class ResponseBuilderFactory implements ResponseBuilder {
    public Response build() {
       return create().build();
    }
-   
+
 }

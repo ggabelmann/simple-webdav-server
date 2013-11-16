@@ -12,8 +12,7 @@ public class CollectionResourceRenderer extends AbstractResourceRenderer {
    
    private final CollectionResource cr;
    
-   public CollectionResourceRenderer(final CollectionResource cr, final String host, final int port) {
-      super(host, port);
+   public CollectionResourceRenderer(final CollectionResource cr) {
       this.cr = cr;
    }
    
@@ -28,7 +27,7 @@ public class CollectionResourceRenderer extends AbstractResourceRenderer {
       
       String content =
       "<D:response>" +
-      "<D:href>" + host + ":" + port + cr.getUri() + "</D:href>" +
+      "<D:href>" + cr.getUri() + "</D:href>" +
       "<D:propstat>" +
       "<D:prop>" +
       "<D:creationdate>" + date + "</D:creationdate>" +
@@ -43,13 +42,13 @@ public class CollectionResourceRenderer extends AbstractResourceRenderer {
       if ("1".equals(depth)) {
          final Iterator<CollectionResource> crIt = cr.getChildCollections();
          while (crIt.hasNext()) {
-            final CollectionResourceRenderer crr = new CollectionResourceRenderer(crIt.next(), host, port);
+            final CollectionResourceRenderer crr = new CollectionResourceRenderer(crIt.next());
             content = content + crr.getResponseXmlFragment("0");
          }
          
          final Iterator<FileResource> frIt = cr.getChildFiles();
          while (frIt.hasNext()) {
-            final FileResourceRenderer frr = new FileResourceRenderer(frIt.next(), host, port);
+            final FileResourceRenderer frr = new FileResourceRenderer(frIt.next());
             content = content + frr.getResponseXmlFragment("0");
          }
       }

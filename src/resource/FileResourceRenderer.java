@@ -11,8 +11,7 @@ public class FileResourceRenderer extends AbstractResourceRenderer {
    
    private final FileResource fr;
    
-   public FileResourceRenderer(final FileResource fr, final String host, final int port) {
-      super(host, port);
+   public FileResourceRenderer(final FileResource fr) {
       this.fr = fr;
    }
    
@@ -33,7 +32,7 @@ public class FileResourceRenderer extends AbstractResourceRenderer {
       
       return
             "<D:response>" +
-            "<D:href>" + host + ":" + port + fr.getUri() + "</D:href>" +
+            "<D:href>" + fr.getUri() + "</D:href>" +
             "<D:propstat>" +
             "<D:prop>" +
             "<D:creationdate>" + date + "</D:creationdate>" +

@@ -12,6 +12,20 @@ public interface ResponseBuilder {
    
    public ResponseBuilder content(final String content);
    
+   /**
+    * Do not wrap the value in quotes.
+    * 
+    * @param content Can be null.
+    * @return This ResponseBuilder.
+    */
+   public ResponseBuilder strongEtag(final String content);
+   
+   /**
+    * If this method is called without a null parameter then the response will use it instead of any value set with content().
+    * 
+    * @param is Can be null.
+    * @return This ResponseBuilder.
+    */
    public ResponseBuilder is(final InputStream is);
    
    /**
@@ -23,7 +37,7 @@ public interface ResponseBuilder {
     * @param depth ?
     * @return ?
     */
-   public ResponseBuilder cr(final CollectionResource cr, final String host, final int port, final String depth);
+   public ResponseBuilder cr(final CollectionResource cr, final String depth);
    
    /**
     * Renders a FileResource.
@@ -33,7 +47,7 @@ public interface ResponseBuilder {
     * @param port ?
     * @return ?
     */
-   public ResponseBuilder fr(final FileResource fr, final String host, final int port);
+   public ResponseBuilder fr(final FileResource fr);
    
    public ResponseBuilder xml(final String content);
    
