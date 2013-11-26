@@ -8,16 +8,42 @@ import fi.iki.elonen.NanoHTTPD.Response;
 class HandlerBuilderImpl implements HandlerBuilder {
    
    private Handler handler;
+   private String header;
+   private String headerRegex;
    private Method method;
-   private String uri;
+   private String uriRegex;
    
    HandlerBuilderImpl() {
+   }
+   
+   @Override
+   public Handler build() {
+      return new CombinedHandler(uriRegex, method, header, headerRegex, handler);
    }
    
    @Override
    public Handler handler(final Handler... h) {
       this.handler = new ArrayOfHandlersHandler(h);
       return build();
+   }
+   
+   @Override
+   public HandlerBuilderImpl onHeader(final String header, final String headerRegex) {
+      this.header = header;
+      this.headerRegex = headerRegex;
+      return this;
+   }
+   
+   @Override
+   public HandlerBuilderImpl onMethod(final Method method) {
+      this.method = method;
+      return this;
+   }
+   
+   @Override
+   public HandlerBuilderImpl onUri(final String uriRegex) {
+      this.uriRegex = uriRegex;
+      return this;
    }
    
    @Override
@@ -29,23 +55,6 @@ class HandlerBuilderImpl implements HandlerBuilder {
          }
       };
       return build();
-   }
-   
-   @Override
-   public HandlerBuilderImpl method(final Method method) {
-      this.method = method;
-      return this;
-   }
-   
-   @Override
-   public HandlerBuilderImpl uri(final String uri) {
-      this.uri = uri;
-      return this;
-   }
-   
-   @Override
-   public Handler build() {
-      return new CombinedHandler(uri, method, handler);
    }
    
 }

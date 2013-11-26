@@ -1,5 +1,9 @@
 package galleries;
 
+import handler.DigestAuthHandler;
+import handler.Handler;
+import handler.HandlerBuilderFactory;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -12,17 +16,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import response.ResponseBuilderFactory;
+import response.StrongEtag;
+import web.Mime;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import web.Mime;
 import fi.iki.elonen.NanoHTTPD;
-import handler.DigestAuthHandler;
-import handler.Handler;
-import handler.HandlerBuilderFactory;
-import response.StrongEtag;
-import response.ResponseBuilderFactory;
 
 /**
  * ?
@@ -111,18 +113,15 @@ public class GalleriesServer extends NanoHTTPD {
             });
       
       this.handler = hbf.handler(
-            hbf.method(Method.OPTIONS).response(rbf.addHeader("DAV", "1").addHeader("Allow", "OPTIONS,PROPFIND").build()),
+            hbf.onMethod(Method.OPTIONS).response(rbf.addHeader("DAV", "1").addHeader("Allow", "OPTIONS,PROPFIND").build()),
             new DigestAuthHandler(
-               hbf.uri(".+/AutoRun.inf|.+/[dD]esktop.ini|.+/folder.gif|.+/folder.jpg|.+/Thumbs.db").response(rbf.status(Response.Status.NOT_FOUND).build()),
-               hbf.method(Method.LOCK).handler(new LockHandler()),
-               hbf.method(Method.PROPFIND).handler(
-                     hbf.uri("/galleries/?").handler(new GalleriesHandler()),
-                     hbf.uri("/galleries/gallery\\d+/?").handler(new GalleryHandler())
+               hbf.onUri(".+/[aA]uto[rR]un.inf|.+/[dD]esktop.ini|.+/[fF]older.gif|.+/[fF]older.jpg|.+/[tT]humbs.db").response(rbf.status(Response.Status.GONE).build()),
+               hbf.onMethod(Method.LOCK).handler(new LockHandler()),
+               hbf.onMethod(Method.PROPFIND).handler(
+                     hbf.onUri("/galleries/?").handler(new GalleriesHandler()),
+                     hbf.onUri("/galleries/gallery\\d+/?").handler(new GalleryHandler())
                ),
-               hbf.uri("/galleries/gallery\\d+/\\d+.jpg").handler(
-                     hbf.method(Method.GET).handler(new GetPhotoHandler()),
-                     hbf.method(Method.PROPFIND).handler(new PropfindPhotoHandler())
-               )
+               hbf.onUri("/galleries/gallery\\d+/\\d+.jpg").handler(new PhotoHandler())
             ),
             hbf.response(rbf.status(Response.Status.FORBIDDEN).build())
       );
@@ -211,11 +210,11 @@ public class GalleriesServer extends NanoHTTPD {
       
    }
    
-   private abstract class AbstractPhotoHandler implements Handler {
+   private class PhotoHandler implements Handler {
       
       private final Pattern pattern;
       
-      private AbstractPhotoHandler() {
+      private PhotoHandler() {
          pattern = Pattern.compile(".+gallery(\\d+)/(\\d+).jpg");
       }
       
@@ -237,33 +236,30 @@ public class GalleriesServer extends NanoHTTPD {
          return galleries.get(galleryNum).getImage(imageNum);
       }
       
-   }
-   
-   private class GetPhotoHandler extends AbstractPhotoHandler {
-      
       @Override
       public Response handle(String uri, Method method, Map<String, String> header, Map<String, String> parms) {
          final Image image = getImage(uri);
-         final StrongEtag etag = new StrongEtag(String.valueOf(image.url.hashCode()));
-         if (etag.toString().equals(header.get("if-none-match"))) {
-            return rbf.status(Response.Status.NOT_MODIFIED).build();
-         }
-         else {
-            final InputStream is = image.getInputStream(); // See if we can get the data...
-            if (image.success) {
-               return rbf.etag(etag).mime(Mime.TYPES.get("jpg")).is(is).build();
-            }
+         if (image.success) {
+            final StrongEtag etag = new StrongEtag(String.valueOf(image.url.hashCode()));
+            final Handler handler = hbf.handler(
+                  hbf.onHeader("if-none-match", etag.toString()).response(rbf.status(Response.Status.NOT_MODIFIED).build()), // TODO: do the etag quotes match properly?
+                  hbf.onMethod(Method.PROPFIND).response(rbf.fr(new ImageAdapter(image, getImageNum(uri) + ".jpg", uri)).build()),
+                  hbf.onMethod(Method.GET).handler(
+                        hbf.onHeader("user-agent", ".*[cC]yber[dD]uck.*").response(rbf.addHeader("Location", image.url).status(Response.Status.TEMPORARY_REDIRECT).build()),
+                        new Handler() {
+                           @Override
+                           public Response handle(String uri, Method method, Map<String, String> header, Map<String, String> parms) {
+                              final InputStream is = image.getInputStream(); // See if we can get the data...
+                              if (image.success) {
+                                 return rbf.etag(etag).mime(Mime.TYPES.get("jpg")).is(is).build();
+                              }
+                              return null;
+                           }
+                        })
+                  );
+            return handler.handle(uri, method, header, parms);
          }
          return null;
-      }
-   }
-   
-   private class PropfindPhotoHandler extends AbstractPhotoHandler {
-      
-      @Override
-      public Response handle(String uri, Method method, Map<String, String> header, Map<String, String> parms) {
-         final Image image = getImage(uri);
-         return rbf.fr(new ImageAdapter(image, getImageNum(uri) + ".jpg", uri)).build();
       }
    }
    
